@@ -1,0 +1,62 @@
+PS C:\Users\Admin\Downloads\pii_ner_assignment 2\pii_ner_assignment> python src/generate_data.py  --train_size 800  --dev_size 150  --output_dir data            
+Generating 800 training examples...
+Generating 150 dev examples...
+Saved to data/
+Train: 800 examples
+Dev: 150 examples
+
+
+
+PS C:\Users\Admin\Downloads\pii_ner_assignment 2\pii_ner_assignment> python src/train_enhanced.py  --model_name distilbert-base-uncased  --train data/train.jsonl  --dev data/dev.jsonl  --out_dir out  --batch_size 16  --epochs 5   --lr 3e-5  --max_length 256  --use_lstm  --use_crf  --grad_accum_steps 1                                      
+Device: cpu
+Model: distilbert-base-uncased
+Using BiLSTM: True
+Using CRF: True
+
+Training for 5 epochs...
+Total steps: 250
+Epoch 1/5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:23<00:00,  1.67s/it, loss=50.4995] 
+Epoch 1 - Train Loss: 58.5113, Dev Loss: 47.3450
+Saved best model to out\best_model
+Epoch 2/5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:35<00:00,  1.91s/it, loss=34.7441]
+Epoch 2 - Train Loss: 40.6011, Dev Loss: 33.0270
+Saved best model to out\best_model
+Epoch 3/5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:21<00:00,  1.64s/it, loss=26.5152]
+Epoch 3 - Train Loss: 30.7320, Dev Loss: 25.9863
+Saved best model to out\best_model
+Epoch 4/5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:17<00:00,  1.55s/it, loss=21.7732]
+Epoch 4 - Train Loss: 25.4399, Dev Loss: 22.1712
+Saved best model to out\best_model
+Epoch 5/5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:20<00:00,  1.61s/it, loss=21.9829]
+Epoch 5 - Train Loss: 22.9303, Dev Loss: 21.0867
+Saved best model to out\best_model
+
+
+PS C:\Users\Admin\Downloads\pii_ner_assignment 2\pii_ner_assignment> python src/predict_enhanced.py  --model_dir out  --input data/dev.jsonl --output out/dev_pred.json  --post_process
+Loading model from out...
+Using CRF: True
+Post-processing: True
+Wrote predictions for 150 utterances to out/dev_pred.json
+
+
+PS C:\Users\Admin\Downloads\pii_ner_assignment 2\pii_ner_assignment> python src/eval_span_f1.py   --gold data/dev.jsonl  --pred out/dev_pred.json       
+Per-entity metrics:
+CITY            P=0.000 R=0.000 F1=0.000
+CREDIT_CARD     P=1.000 R=1.000 F1=1.000
+DATE            P=0.000 R=0.000 F1=0.000
+EMAIL           P=0.636 R=0.636 F1=0.636
+LOCATION        P=0.000 R=0.000 F1=0.000
+PERSON_NAME     P=0.000 R=0.000 F1=0.000
+PHONE           P=0.943 R=0.943 F1=0.943
+
+Macro-F1: 0.369
+
+PII-only metrics: P=0.838 R=0.451 F1=0.586
+Non-PII metrics: P=0.000 R=0.000 F1=0.000
+
+
+PS C:\Users\Admin\Downloads\pii_ner_assignment 2\pii_ner_assignment> python src/measure_latency.py  --model_dir out  --input data/dev.jsonl  --runs 50            
+Loading model from out...
+Latency over 50 runs (batch_size=1):
+  p50: 30.23 ms
+  p95: 35.75 ms
